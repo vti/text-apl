@@ -33,6 +33,30 @@ Text::APL - non-blocking and streaming capable template engine
         vars => {foo => 'bar'}
     );
 
+=head1 DESCRIPTION
+
+This is yet another template engine. But compared to others it supports
+non-blocking (read/write) and streaming output.
+
+=head2 Reader/Writer
+
+Reader and writer can be a subroutine references reading from any source and
+writing output to any destination. Sane default implementations for reading from
+a string, a file or file handle and writing to the string, a file or a file
+handle are also available.
+
+=head2 Parser
+
+Parser can parse not only full templates but chunk by chunk correctly resolving
+any ambiguous leftovers. This allows reading by chunks and immediate parsing.
+
+=head2 Compiler
+
+Compiler compiles templates into Perl code but when evaluating does not create
+a Perl string that accumulates all the template output, but rather provides
+a special C<print> function that pushes the content as soon as it's available
+(streaming).
+
 =head1 SYNTAX
 
 Syntax is borrowed from the template standards shared among several web
