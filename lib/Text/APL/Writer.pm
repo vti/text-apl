@@ -11,7 +11,14 @@ sub build {
 
     my $writer;
 
-    if (ref $output eq 'SCALAR') {
+    if (!ref $output) {
+        open my $fh, '>', $output or die "Can't write to '$output': $!";
+        $writer = sub { print $fh $_[0] };
+    }
+    elsif (ref $output eq 'GLOB') {
+        $writer = sub { print $output $_[0] };
+    }
+    elsif (ref $output eq 'SCALAR') {
         ${$output} = '';
         $writer = sub { ${$output} .= $_[0] if defined $_[0] };
     }
