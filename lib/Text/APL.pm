@@ -5,6 +5,8 @@ use warnings;
 
 use base 'Text::APL::Base';
 
+our $VERSION = 0.01;
+
 use File::Spec   ();
 use Scalar::Util ();
 
