@@ -34,3 +34,23 @@ sub translate {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+Text::APL::Translator - translator
+
+=head1 DESCRIPTION
+
+Translates token tree produced by L<Text::APL::Parser> into Perl code.
+Introduces special C<__print> and C<__print_escaped> functions.
+
+=head1 METHODS
+
+=head2 C<translate>
+
+Translates token tree into Perl code.
+
+=cut

@@ -14,3 +14,23 @@ sub build {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+Text::APL::ParserFactory - parser builder
+
+=head1 DESCRIPTION
+
+Builds a parser used in L<Text::APL>. By default returns
+L<Text::APL::ParserChunked> instance.
+
+=head1 METHODS
+
+=head2 C<build>
+
+Build parser.
+
+=cut

@@ -50,3 +50,48 @@ sub build {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+Text::APL::Reader - reader
+
+=head1 DESCRIPTION
+
+Reads a template from various sources. Accepts a subroutine for a custom
+implementation. 
+
+Returns a reference to subroutine. When called accepts another reference to
+subroutine that is called upon receiving a chunk of the template.
+
+For example a reader from a scalar reference is implemented as:
+
+    $reader = sub {
+        my ($cb) = @_;
+
+        $cb->(${$input_string});
+        $cb->();
+    };
+
+The first call on C<cb> notifies L<Text::APL> about the template chunk and
+second without arguments notifies L<Text::APL> about EOF.
+
+The following sources are implemented:
+
+    $reader->(\$scalar);
+    $reader->($filename);
+    $reader->($filehandle);
+    $reader->(sub {...custom code...});
+
+Custom subroutines are used for non-blocking template reading. See C<examples/>
+directory for an example using L<IO::AIO> for non-blocking template reading.
+
+=head1 METHODS
+
+=head2 C<build>
+
+Build a reader.
+
+=cut

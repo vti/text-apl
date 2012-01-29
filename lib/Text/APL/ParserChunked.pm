@@ -7,7 +7,7 @@ use base 'Text::APL::Base';
 
 use Text::APL::Parser;
 
-sub BUILD {
+sub _BUILD {
     my $self = shift;
 
     $self->{parser} ||= Text::APL::Parser->new;
@@ -42,3 +42,28 @@ sub parse_chunk_final {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+Text::APL::ParserChunk - parser that reads chunks
+
+=head1 DESCRIPTION
+
+Modification of L<Text::APL::Parser> that can parse chunks of texts instead of
+parsing a whole document. Correctly processes hanging leftovers that are
+resolved in the next chunk. Stops parsing when passed an undefined chunk.
+
+=head1 METHODS
+
+=head2 C<parse_chunk>
+
+Parse a template's chunk.
+
+=head2 C<parse_chunk_final>
+
+Parse a template's final chunk.
+
+=cut

@@ -31,39 +31,42 @@ my $app = sub {
         aio_open $path_to_template, IO::AIO::O_RDONLY, 0, sub {
             my $fh = shift or die "$!";
 
+            my $reader = sub {
+                my ($cb) = @_;
+
+                $handle = AnyEvent::Handle->new(
+                    fh      => $fh,
+                    on_eof  => sub { $cb->() },
+                    on_read => sub {
+                        my $handle = shift;
+
+                        $handle->push_read(
+                            line => sub {
+                                my ($handle, $line) = @_;
+
+                                $cb->($line);
+                            }
+                        );
+                    },
+                    on_error => sub { }
+                );
+            };
+
+            my $writer = sub {
+                my ($chunk) = @_;
+
+                if (defined $chunk) {
+                    $writer->write($chunk);
+                }
+                else {
+                    $writer->close;
+                }
+            };
+
             $template->render(
-                input => sub {
-                    my ($cb) = @_;
-
-                    $handle = AnyEvent::Handle->new(
-                        fh      => $fh,
-                        on_eof  => sub { $cb->() },
-                        on_read => sub {
-                            my $handle = shift;
-
-                            $handle->push_read(
-                                line => sub {
-                                    my ($handle, $line) = @_;
-
-                                    $cb->($line);
-                                }
-                            );
-                        },
-                        on_error => sub { }
-                    );
-
-                },
-                output => sub {
-                    my ($chunk) = @_;
-
-                    if (defined $chunk) {
-                        $writer->write($chunk);
-                    }
-                    else {
-                        $writer->close;
-                    }
-                },
-                vars => {name => 'vti'}
+                input  => $reader,
+                output => $writer,
+                vars   => {name => 'vti'}
             );
         };
     };

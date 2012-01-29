@@ -5,7 +5,7 @@ use warnings;
 
 use base 'Text::APL::Base';
 
-sub BUILD {
+sub _BUILD {
     my $self = shift;
 
     $self->{namespace} ||= 'Text::APL::';
@@ -57,3 +57,23 @@ sub _generate_helpers {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+Text::APL::Compiler - compiler
+
+=head1 DESCRIPTION
+
+Builds a Perl package, generates variables and helpers declarations and evals
+the produced code.
+
+=head1 METHODS
+
+=head2 C<compile>
+
+Compile a Perl package.
+
+=cut

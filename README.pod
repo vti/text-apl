@@ -7,7 +7,7 @@ Text::APL - non-blocking and streaming capable template engine
 
 =head1 SYNOPSIS
 
-=head2 SIMPLE EXAMPLE
+=head2 Simple example
 
     $template->render(
         input  => \$input,
@@ -15,7 +15,7 @@ Text::APL - non-blocking and streaming capable template engine
         vars   => {foo => 'bar'}
     );
 
-=head2 STREAMING EXAMPLE
+=head2 Streaming example
 
     $template->render(
         input => sub {
@@ -33,85 +33,10 @@ Text::APL - non-blocking and streaming capable template engine
         vars => {foo => 'bar'}
     );
 
-=head2 PSGI/Plack + IO::AIO + AnyEvent example
-
-    use Plack::Builder;
-
-    use File::Basename ();
-    use File::Spec;
-    use AnyEvent::Handle;
-    use AnyEvent::AIO;
-    use IO::AIO;
-
-    use Text::APL;
-
-    my $template       = Text::APL->new;
-    my $templates_path = File::Basename::dirname(__FILE__);
-
-    my $app = sub {
-        my ($env) = @_;
-
-        return sub {
-            my ($respond) = @_;
-
-            my $writer = $respond->([200, ['Content-Type' => 'text/html']]);
-
-            my $handle;
-
-            my $path_to_template =
-              File::Spec->rel2abs(
-                File::Spec->catfile($templates_path, 'template.apl'));
-
-            aio_open $path_to_template, IO::AIO::O_RDONLY, 0, sub {
-                my $fh = shift or die "$!";
-
-                $template->render(
-                    input => sub {
-                        my ($cb) = @_;
-
-                        $handle = AnyEvent::Handle->new(
-                            fh      => $fh,
-                            on_eof  => sub { $cb->() },
-                            on_read => sub {
-                                my $handle = shift;
-
-                                $handle->push_read(
-                                    line => sub {
-                                        my ($handle, $line) = @_;
-
-                                        $cb->($line);
-                                    }
-                                );
-                            },
-                            on_error => sub { }
-                        );
-
-                    },
-                    output => sub {
-                        my ($chunk) = @_;
-
-                        if (defined $chunk) {
-                            $writer->write($chunk);
-                        }
-                        else {
-                            $writer->close;
-                        }
-                    },
-                    vars => {name => 'vti'}
-                );
-            };
-        };
-    };
-
-    builder {
-        enable 'Chunked';
-
-        $app;
-    };
-
 =head1 SYNTAX
 
-Syntax is borrowed from the shared among several web framewoks template standards:
+Syntax is borrowed from the template standards shared among several web
+framewoks in different languages:
 
     <% foo() %> # evaluate code
     % foo()
@@ -124,8 +49,70 @@ Syntax is borrowed from the shared among several web framewoks template standard
 
 No new template language is provided, just the old Perl.
 
+=head1 METHODS
+
+=head2 C<new>
+
+    my $template = Text::APL->new;
+
+Create new L<Text::APL> instance.
+
+Accepted options:
+
+=over
+
+=item * parser (by default L<Text::APL::Parser>)
+
+=item * parser_factory (by default L<Text::APL::ParserFactory>)
+
+=item * translator (by default L<Text::APL::Translator>)
+
+=item * compiler (by default L<Text::APL::Compiler>)
+
+=item * reader (by default L<Text::APL::Reader>)
+
+=item * writer (by default L<Text::APL::Writer>)
+
+=back
+
+=head2 C<render>
+
+    $template->render(
+        input   => \$input,
+        output  => \$output,
+        vars    => {foo => 'bar'},
+        helpers => {
+            time => sub {time}
+        }
+    );
+
+C<input> and C<output> can be a filename, a reference to scalar, a file handle
+and a reference to subroutine. Read more at L<Text::APL::Reader> and
+L<Text::APL::Writer>.
+
+C<vars> are Perl variables available in the template.
+
+C<helpers> are Perl subroutines. available in the template.
+
 =head1 EXAMPLES
 
 For working examples see C<examples/> directory in distribution.
+
+=head1 DEVELOPMENT
+
+=head2 Repository
+
+    http://github.com/vti/text-apl
+
+=head1 AUTHOR
+
+Viacheslav Tykhanovskyi, C<vti@cpan.org>.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2012, Viacheslav Tykhanovskyi
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
 
 =cut

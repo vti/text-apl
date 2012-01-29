@@ -18,7 +18,7 @@ use Text::APL::Translator;
 use Text::APL::Writer;
 use Text::APL::ParserFactory;
 
-sub BUILD {
+sub _BUILD {
     my $self = shift;
 
     $self->{parser}         ||= Text::APL::Parser->new;
@@ -112,3 +112,122 @@ sub _build_context_from_args {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+Text::APL - non-blocking and streaming capable template engine
+
+=head1 SYNOPSIS
+
+=head2 Simple example
+
+    $template->render(
+        input  => \$input,
+        output => \$output,
+        vars   => {foo => 'bar'}
+    );
+
+=head2 Streaming example
+
+    $template->render(
+        input => sub {
+            my ($cb) = @_;
+
+            # Call $cb($data) when data is available
+            # Call $cb->() on EOF
+        },
+        output => sub {
+            my ($chunk) = @_;
+
+            # Print $chunk to the needed output
+            # $chunk is undef when template is fully rendered
+        },
+        vars => {foo => 'bar'}
+    );
+
+=head1 SYNTAX
+
+Syntax is borrowed from the template standards shared among several web
+framewoks in different languages:
+
+    <% foo() %> # evaluate code
+    % foo()
+
+    <%= $foo %> # insert evaluation result
+    %= $foo
+
+    <%== $foo %> # insert evaluation result without escaping
+    %== %foo
+
+No new template language is provided, just the old Perl.
+
+=head1 METHODS
+
+=head2 C<new>
+
+    my $template = Text::APL->new;
+
+Create new L<Text::APL> instance.
+
+Accepted options:
+
+=over
+
+=item * parser (by default L<Text::APL::Parser>)
+
+=item * parser_factory (by default L<Text::APL::ParserFactory>)
+
+=item * translator (by default L<Text::APL::Translator>)
+
+=item * compiler (by default L<Text::APL::Compiler>)
+
+=item * reader (by default L<Text::APL::Reader>)
+
+=item * writer (by default L<Text::APL::Writer>)
+
+=back
+
+=head2 C<render>
+
+    $template->render(
+        input   => \$input,
+        output  => \$output,
+        vars    => {foo => 'bar'},
+        helpers => {
+            time => sub {time}
+        }
+    );
+
+C<input> and C<output> can be a filename, a reference to scalar, a file handle
+and a reference to subroutine. Read more at L<Text::APL::Reader> and
+L<Text::APL::Writer>.
+
+C<vars> are Perl variables available in the template.
+
+C<helpers> are Perl subroutines. available in the template.
+
+=head1 EXAMPLES
+
+For working examples see C<examples/> directory in distribution.
+
+=head1 DEVELOPMENT
+
+=head2 Repository
+
+    http://github.com/vti/text-apl
+
+=head1 AUTHOR
+
+Viacheslav Tykhanovskyi, C<vti@cpan.org>.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2012, Viacheslav Tykhanovskyi
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
+
+=cut
