@@ -46,7 +46,7 @@ sub render {
             my ($chunk) = @_;
 
             if (!defined $chunk) {
-                my $leftover = $parser_chunked->parse_chunk_final;
+                my $leftover = $parser_chunked->parse();
                 push @$tape, @$leftover if $leftover;
 
                 my $code = $self->_translate($tape);
@@ -77,7 +77,7 @@ sub render {
                 $writer->();
             }
             else {
-                my $subtape = $parser_chunked->parse_chunk($chunk);
+                my $subtape = $parser_chunked->parse($chunk);
                 push @$tape, @$subtape if @$subtape;
             }
         }

@@ -15,9 +15,19 @@ sub _BUILD {
     return $self;
 }
 
-sub parse_chunk {
+sub parse {
+    my $self = shift;
+
+    @_ ? $self->_parse_chunk(@_) : $self->_parse_chunk_final;
+}
+
+sub _parse_chunk {
     my $self = shift;
     my ($input) = @_;
+
+    if (my $buffer = delete $self->{buffer}) {
+        $input = delete($buffer->{value}) . $input;
+    }
 
     my $tape = $self->{parser}->parse($input);
 
@@ -28,17 +38,16 @@ sub parse_chunk {
     $tape;
 }
 
-sub parse_chunk_final {
+sub _parse_chunk_final {
     my $self = shift;
-    my ($input) = @_;
 
-    $input = '' unless defined $input;
+    my $tape = [];
 
     if (my $buffer = delete $self->{buffer}) {
-        $input = $buffer->{value} . $input;
+        $tape = $self->{parser}->parse($buffer->{value});
     }
 
-    $self->{parser}->parse($input);
+    $tape;
 }
 
 1;
@@ -58,12 +67,8 @@ resolved in the next chunk. Stops parsing when passed an undefined chunk.
 
 =head1 METHODS
 
-=head2 C<parse_chunk>
+=head2 C<parse>
 
 Parse a template's chunk.
-
-=head2 C<parse_chunk_final>
-
-Parse a template's final chunk.
 
 =cut
