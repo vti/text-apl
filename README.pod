@@ -1,3 +1,4 @@
+__END__
 
 =pod
 
@@ -48,7 +49,7 @@ handle are also available.
 =head2 Parser
 
 Parser can parse not only full templates but chunk by chunk correctly resolving
-any ambiguous leftovers. This allows reading by chunks and immediate parsing.
+any ambiguous leftovers. This allows immediate parsing.
 
 =head2 Compiler
 
@@ -56,6 +57,16 @@ Compiler compiles templates into Perl code but when evaluating does not create
 a Perl string that accumulates all the template output, but rather provides
 a special C<print> function that pushes the content as soon as it's available
 (streaming).
+
+The generated Perl code can looks like this:
+
+    Hello, <%= $nickname %>!
+
+    # becomes
+
+    __print(q{Hello, });
+    __print_escaped(do {$foo});
+    __print(q{!});
 
 =head1 SYNTAX
 
