@@ -22,6 +22,15 @@ sub build {
             $cb->();
         };
     }
+    elsif (ref $input eq 'GLOB') {
+        $reader = sub {
+            my ($cb) = @_;
+            while (defined(my $line = <$input>)) {
+                $cb->($line);
+            }
+            $cb->();
+        };
+    }
     elsif (ref $input eq 'SCALAR') {
         $reader = sub {
             my ($cb) = @_;
