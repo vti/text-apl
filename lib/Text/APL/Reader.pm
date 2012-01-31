@@ -12,32 +12,13 @@ sub build {
     my $reader;
 
     if (!ref $input) {
-        open my $fh, '<', $input or die "Can't open '$input': $!";
-
-        $reader = sub {
-            my ($cb) = @_;
-            while (defined(my $line = <$fh>)) {
-                $cb->($line);
-            }
-            $cb->();
-        };
+        $reader = $self->_build_file_reader($input);
     }
     elsif (ref $input eq 'GLOB') {
-        $reader = sub {
-            my ($cb) = @_;
-            while (defined(my $line = <$input>)) {
-                $cb->($line);
-            }
-            $cb->();
-        };
+        $reader = $self->_build_file_handle_reader($input);
     }
     elsif (ref $input eq 'SCALAR') {
-        $reader = sub {
-            my ($cb) = @_;
-
-            $cb->(${$input});
-            $cb->();
-        };
+        $reader = $self->_build_string_reader($input);
     }
     elsif (ref $input eq 'CODE') {
         $reader = $input;
@@ -47,6 +28,40 @@ sub build {
     }
 
     return $reader;
+}
+
+sub _build_file_reader {
+    my $self = shift;
+    my ($input) = @_;
+
+    open my $fh, '<', $input or die "Can't open '$input': $!";
+
+    return $self->_build_file_handle_reader($fh);
+}
+
+sub _build_file_handle_reader {
+    my $self = shift;
+    my ($input) = @_;
+
+    sub {
+        my ($cb) = @_;
+        while (defined(my $line = <$input>)) {
+            $cb->($line);
+        }
+        $cb->();
+    };
+}
+
+sub _build_string_reader {
+    my $self = shift;
+    my ($input) = @_;
+
+    sub {
+        my ($cb) = @_;
+
+        $cb->(${$input});
+        $cb->();
+    };
 }
 
 1;

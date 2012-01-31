@@ -80,7 +80,8 @@ sub render {
                 my $subtape = $parser_chunked->parse($chunk);
                 push @$tape, @$subtape if @$subtape;
             }
-        }
+        },
+        $params{input}
     );
 
     return $self;
@@ -164,6 +165,11 @@ handle are also available.
 
 Parser can parse not only full templates but chunk by chunk correctly resolving
 any ambiguous leftovers. This allows immediate parsing.
+
+This for example works just fine:
+
+    $parser->parse('<% $hello');
+    $parser->parse(' %>');
 
 =head2 Compiler
 
