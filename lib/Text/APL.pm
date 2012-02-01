@@ -24,7 +24,7 @@ sub _BUILD {
     $self->{parser}         ||= Text::APL::Parser->new;
     $self->{translator}     ||= Text::APL::Translator->new;
     $self->{compiler}       ||= Text::APL::Compiler->new;
-    $self->{reader}         ||= Text::APL::Reader->new;
+    $self->{reader}         ||= $self->_build_reader;
     $self->{writer}         ||= Text::APL::Writer->new;
     $self->{parser_factory} ||= Text::APL::ParserFactory->new;
 }
@@ -110,6 +110,20 @@ sub _build_context_from_args {
     }
 
     return Text::APL::Context->new(@_);
+}
+
+sub _build_reader {
+    my $self = shift;
+
+    return exists $INC{"AnyEvent.pm"}
+      ? do {
+        require AnyEvent::AIO;
+        require Text::APL::Reader::AIO;
+        Text::APL::Reader::AIO->new;
+      }
+      : exists $INC{"IO/AIO.pm"}
+      ? do { require TExt::APL::Reader::AIO; Text::APL::Reader->AIO->new }
+      : Text::APL::Reader->new;
 }
 
 1;

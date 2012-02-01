@@ -7,9 +7,8 @@ use File::Basename ();
 use File::Spec;
 
 use Text::APL;
-use Text::APL::Reader::AIO;
 
-my $template         = Text::APL->new(reader => Text::APL::Reader::AIO->new);
+my $template         = Text::APL->new;
 my $templates_path   = File::Basename::dirname(__FILE__);
 my $path_to_template = File::Spec->catfile($templates_path, 'template.apl');
 
