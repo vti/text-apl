@@ -15,6 +15,25 @@ sub _BUILD {
 sub vars    { $_[0]->{vars} }
 sub helpers { $_[0]->{helpers} }
 
+sub add_helper {
+    my $self = shift;
+
+    $self->add('helpers', @_);
+}
+
+sub add_var {
+    my $self = shift;
+
+    $self->add('vars', @_);
+}
+
+sub add {
+    my $self = shift;
+    my ($type, $key, $value) = @_;
+
+    $self->{$type}->{$key} = $value;
+}
+
 1;
 __END__
 

@@ -34,52 +34,45 @@ sub render {
     my $reader = $self->{reader}->build($params{input});
     my $writer = $self->{writer}->build($params{output});
 
-    my $parser = Text::APL::Parser->new;
+    my $parser = $self->{parser};
+
+    my $context = Text::APL::Context->new(
+        helpers => $params{helpers},
+        vars    => $params{vars}
+    );
+    $context->add_helper(__print => sub { $writer->(@_) });
+    $context->add_helper(
+        __print_escaped => sub {
+            my ($input) = @_;
+
+            for ($input) { s/&/&amp;/g; s/</&lt;/g; s/>/&gt;/g; }
+
+            $writer->($input);
+        }
+    );
 
     my $tape = [];
 
-    $reader->(
-        sub {
-            my ($chunk) = @_;
+    my $reader_cb; $reader_cb = sub {
+        my ($chunk) = @_;
 
-            if (!defined $chunk) {
-                my $leftover = $parser->parse();
-                push @$tape, @$leftover if $leftover;
+        if (!defined $chunk) {
+            my $leftover = $parser->parse();
+            push @$tape, @$leftover if $leftover;
 
-                my $code = $self->_translate($tape);
+            my $code = $self->_translate($tape);
 
-                my $context = $self->_build_context_from_args(
-                    helpers => {
-                        __print         => sub { $writer->(@_) },
-                        __print_escaped => sub {
-                            my ($input) = @_;
+            $self->_compile($code, $context)->($context);
 
-                            for ($input) {
-                                s/&/&amp;/g;
-                                s/</&lt;/g;
-                                s/>/&gt;/g;
-                            }
+            $writer->();
+        }
+        else {
+            my $subtape = $parser->parse($chunk);
+            push @$tape, @$subtape if @$subtape;
+        }
+    };
 
-                            $writer->($input);
-                        },
-                        %{$params{helpers} || {}}
-                    },
-                    vars => $params{vars}
-                );
-
-                my $sub_ref = $self->_compile($code, $context);
-
-                $sub_ref->($context);
-
-                $writer->();
-            }
-            else {
-                my $subtape = $parser->parse($chunk);
-                push @$tape, @$subtape if @$subtape;
-            }
-        },
-        $params{input}
-    );
+    $reader->($reader_cb, $params{input});
 
     return $self;
 }
@@ -94,19 +87,6 @@ sub _compile {
     my $self = shift;
 
     return $self->{compiler}->compile(@_);
-}
-
-sub _build_context_from_args {
-    my $self = shift;
-
-    if (   @_ == 1
-        && Scalar::Util::blessed($_[0])
-        && $_[0]->isa('Text::APL::Context'))
-    {
-        return $_[0];
-    }
-
-    return Text::APL::Context->new(@_);
 }
 
 sub _build_reader {
