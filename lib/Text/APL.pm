@@ -16,7 +16,6 @@ use Text::APL::Parser;
 use Text::APL::Reader;
 use Text::APL::Translator;
 use Text::APL::Writer;
-use Text::APL::ParserFactory;
 
 sub _BUILD {
     my $self = shift;
@@ -26,7 +25,6 @@ sub _BUILD {
     $self->{compiler}       ||= Text::APL::Compiler->new;
     $self->{reader}         ||= $self->_build_reader;
     $self->{writer}         ||= Text::APL::Writer->new;
-    $self->{parser_factory} ||= Text::APL::ParserFactory->new;
 }
 
 sub render {
@@ -36,8 +34,7 @@ sub render {
     my $reader = $self->{reader}->build($params{input});
     my $writer = $self->{writer}->build($params{output});
 
-    my $parser_chunked =
-      $self->{parser_factory}->build(parser => $self->{parser});
+    my $parser = Text::APL::Parser->new;
 
     my $tape = [];
 
@@ -46,7 +43,7 @@ sub render {
             my ($chunk) = @_;
 
             if (!defined $chunk) {
-                my $leftover = $parser_chunked->parse();
+                my $leftover = $parser->parse();
                 push @$tape, @$leftover if $leftover;
 
                 my $code = $self->_translate($tape);
@@ -77,7 +74,7 @@ sub render {
                 $writer->();
             }
             else {
-                my $subtape = $parser_chunked->parse($chunk);
+                my $subtape = $parser->parse($chunk);
                 push @$tape, @$subtape if @$subtape;
             }
         },
@@ -231,8 +228,6 @@ Accepted options:
 =over
 
 =item * parser (by default L<Text::APL::Parser>)
-
-=item * parser_factory (by default L<Text::APL::ParserFactory>)
 
 =item * translator (by default L<Text::APL::Translator>)
 

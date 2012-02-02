@@ -13,12 +13,23 @@ sub _BUILD {
 
     $self->{line_token} ||= '%';
 
+    $self->{leftover_token} = $self->_build_leftover_pattern;
+
     return $self;
 }
 
 sub parse {
     my $self = shift;
     my ($input) = @_;
+
+    if (!defined $input) {
+        return [] unless defined $self->{buffer};
+        return [{type => 'text', value => delete $self->{buffer}}];
+    }
+
+    if (defined $self->{buffer}) {
+        $input = delete($self->{buffer}) . $input;
+    }
 
     my $tape = [];
 
@@ -46,13 +57,39 @@ sub parse {
             push @$tape, {type => 'text', value => $1};
         }
         else {
-            push @$tape,
-              {type => 'text', value => substr($input, pos($input))};
+            if ($input
+                =~ m/( (?:$self->{start_token} |^ \s* $self->{line_token}) .* )/gcxms
+              )
+            {
+                $self->{buffer} = $1;
+            }
+            elsif ($input =~ m/( $self->{leftover_token} ) $/gcxms) {
+                $self->{buffer} = $1;
+            }
+
+            my $value = substr($input, pos($input));
+
+            if (defined $value && $value ne '') {
+                push @$tape, {type => 'text', value => $value};
+            }
+
             last;
         }
     }
 
     $tape;
+}
+
+sub _build_leftover_pattern {
+    my $self = shift;
+
+    my @token = split //, $self->{start_token};
+    my $pattern = '';
+    $pattern .= '(?:' . $_ for @token;
+    $pattern .= ')?' for @token;
+    $pattern =~ s{\?$}{};
+
+    return qr/$pattern/;
 }
 
 1;

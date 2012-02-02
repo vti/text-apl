@@ -14,11 +14,11 @@ $parser = Text::APL::Parser->new;
 is_deeply $parser->parse('text'), [{type => 'text', value => 'text'}];
 
 $parser = Text::APL::Parser->new;
-is_deeply $parser->parse('<%= $foo %>'),
-  [{type => 'expr', value => '$foo'}];
+is_deeply $parser->parse('<%= $foo %>'), [{type => 'expr', value => '$foo'}];
 
 $parser = Text::APL::Parser->new;
-is_deeply $parser->parse('<%== $foo %>'), [{type => 'expr', value => '$foo', as_is => 1}];
+is_deeply $parser->parse('<%== $foo %>'),
+  [{type => 'expr', value => '$foo', as_is => 1}];
 
 $parser = Text::APL::Parser->new;
 is_deeply $parser->parse('%= $foo'),
@@ -61,5 +61,28 @@ EOF
     {type => 'exec', value => '$foo', line => 1},
     {type => 'text', value => "\nthree\n"},
   ];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse('text <%'), [{type => 'text', value => 'text '}];
+is_deeply $parser->parse(),          [{type => 'text', value => '<%'}];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse('< '), [{type => 'text', value => '< '}];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse('<'), [];
+is_deeply $parser->parse(' '), [{type => 'text', value => '< '}];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse('<%'), [];
+is_deeply $parser->parse(), [{type => 'text', value => '<%'}];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse('<% <%'), [{type => 'text', value => '<% '}];
+is_deeply $parser->parse(),        [{type => 'text', value => '<%'}];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse('<% '), [];
+is_deeply $parser->parse('$foo %>'), [{type => 'exec', value => '$foo'}];
 
 done_testing;
