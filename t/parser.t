@@ -21,19 +21,26 @@ is_deeply $parser->parse('<%== $foo %>'),
   [{type => 'expr', value => '$foo', as_is => 1}];
 
 $parser = Text::APL::Parser->new;
-is_deeply $parser->parse('%= $foo'),
+is_deeply $parser->parse("%= \$foo\n"),
   [{type => 'expr', value => '$foo', line => 1}];
 
 $parser = Text::APL::Parser->new;
-is_deeply $parser->parse('%== $foo'),
+is_deeply $parser->parse("%== \$foo\n"),
   [{type => 'expr', value => '$foo', line => 1, as_is => 1}];
 
 $parser = Text::APL::Parser->new;
 is_deeply $parser->parse('<% $foo %>'), [{type => 'exec', value => '$foo'}];
 
 $parser = Text::APL::Parser->new;
-is_deeply $parser->parse('% $foo'),
+is_deeply $parser->parse("% \$foo\n"),
   [{type => 'exec', value => '$foo', line => 1}];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse("text\n% \$foo\ntext"),
+  [ {type => 'text', value => "text\n"},
+    {type => 'exec', value => '$foo', line => 1},
+    {type => 'text', value => 'text'}
+  ];
 
 $parser = Text::APL::Parser->new;
 is_deeply $parser->parse(<<'EOF'),
@@ -53,13 +60,13 @@ EOF
     {type => 'expr', value => '$foo', as_is => 1},
     {type => 'text', value => " over\nthe "},
     {type => 'exec', value => '$foo'},
-    {type => 'text', value => " place"},
+    {type => 'text', value => " place\n"},
     {type => 'expr', value => '$foo', line => 1},
-    {type => 'text', value => "\none"},
+    {type => 'text', value => "one\n"},
     {type => 'expr', value => '$foo', line => 1, as_is => 1},
-    {type => 'text', value => "\ntwo"},
+    {type => 'text', value => "two\n"},
     {type => 'exec', value => '$foo', line => 1},
-    {type => 'text', value => "\nthree\n"},
+    {type => 'text', value => "three\n"},
   ];
 
 $parser = Text::APL::Parser->new;
@@ -84,5 +91,9 @@ is_deeply $parser->parse(),        [{type => 'text', value => '<%'}];
 $parser = Text::APL::Parser->new;
 is_deeply $parser->parse('<% '), [];
 is_deeply $parser->parse('$foo %>'), [{type => 'exec', value => '$foo'}];
+
+$parser = Text::APL::Parser->new;
+is_deeply $parser->parse("text\n %"), [{type => 'text', value => "text\n"}];
+is_deeply $parser->parse(), [{type => 'exec', value => '', line => 1}];
 
 done_testing;

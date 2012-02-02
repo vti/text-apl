@@ -25,7 +25,7 @@ is render('<%= "hello" %>'), 'hello';
 
 is render('%= "hello"'), 'hello';
 
-is render(<<'EOF'), "123\n";
+is render(<<'EOF'), "123";
 % my $foo = '123';
 %= $foo;
 EOF
@@ -36,7 +36,7 @@ is render(<<'EOF', vars => {name => 'vti'}), "Hello, vti!\n";
 Hello, <%= $name %>!
 EOF
 
-is render(<<'EOF'), "12345\n";
+is render(<<'EOF'), "12345";
 % for (1 .. 5) {
     %= $_
 % }
