@@ -55,10 +55,8 @@ ok $@;
 
 sub render {
     my ($input, %params) = @_;
-    my $output;
     my $template = Text::APL->new;
-    $template->render(input => \$input, output => \$output, %params);
-    return $output;
+    return $template->render(input => \$input, %params);
 }
 
 done_testing;

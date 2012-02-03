@@ -31,10 +31,12 @@ sub render {
     my $self = shift;
     my (%params) = @_;
 
-    my $reader = $self->{reader}->build($params{input});
-    my $writer = $self->{writer}->build($params{output});
+    my $return = '';
 
-    my $parser = $self->{parser};
+    my $reader = $self->{reader}->build($params{input});
+    my $writer =
+      $self->{writer}
+      ->build(exists $params{output} ? $params{output} : \$return);
 
     my $context = Text::APL::Context->new(
         helpers => $params{helpers},
@@ -51,9 +53,10 @@ sub render {
         }
     );
 
-    my $tape = [];
+    my $parser = $self->{parser};
 
-    my $reader_cb; $reader_cb = sub {
+    my $tape = [];
+    my $reader_cb = sub {
         my ($chunk) = @_;
 
         if (!defined $chunk) {
@@ -62,7 +65,9 @@ sub render {
 
             my $code = $self->_translate($tape);
 
-            $self->_compile($code, $context)->($context);
+            my $sub_ref = $self->_compile($code, $context);
+
+            $sub_ref->($context);
 
             $writer->();
         }
@@ -74,7 +79,7 @@ sub render {
 
     $reader->($reader_cb, $params{input});
 
-    return $self;
+    return exists $self->{output} ? $self : $return;
 }
 
 sub _translate {
