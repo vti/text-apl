@@ -5,6 +5,8 @@ use warnings;
 
 use base 'Text::APL::Base';
 
+use Digest::MD5 ();
+
 sub _BUILD {
     my $self = shift;
 
@@ -12,6 +14,19 @@ sub _BUILD {
     $self->{helpers} ||= {};
 }
 
+sub id {
+    my $self = shift;
+
+    my $id = '';
+
+    $id .= join ':', sort keys %{$self->{vars}};
+    $id .= ',';
+    $id .= join ':', sort keys %{$self->{helpers}};
+
+    return Digest::MD5::md5_hex($id);
+}
+
+sub name    { $_[0]->{name} }
 sub vars    { $_[0]->{vars} }
 sub helpers { $_[0]->{helpers} }
 

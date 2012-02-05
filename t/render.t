@@ -5,8 +5,6 @@ use Test::More;
 
 use Text::APL;
 
-my $template;
-
 is render(''), '';
 
 is render('text'), 'text';

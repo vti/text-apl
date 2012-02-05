@@ -15,9 +15,17 @@ sub compile {
     my $self = shift;
     my ($code, $context) = @_;
 
-    my $template_class = "$self->{namespace}_template";
+    my $template_class = "$self->{namespace}";
 
-    my $package .= qq/no strict 'refs'; %{"$template_class\::"} = ();/;
+    if (defined(my $name = $context->name)) {
+        $template_class .= $name;
+    }
+    else {
+        $template_class .= '__anon__';
+    }
+
+    my $package = '';
+    $package .= qq/no strict 'refs'; %{"$template_class\::"} = ();/;
     $package    .= "package $template_class;";
     $package    .= 'sub {';
     $package    .= 'use strict; use warnings;';
@@ -50,7 +58,7 @@ sub _generate_helpers {
     my $string = '';
 
     foreach my $key (keys %{$context->helpers}) {
-        $string .= "sub $key; *$key = \$_[0]->helpers->{$key};";
+        $string .= "sub $key; local *$key = \$_[0]->helpers->{$key};";
     }
 
     return $string;
