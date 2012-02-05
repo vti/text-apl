@@ -33,7 +33,6 @@ sub render {
 
     my $return = '';
 
-    my $reader = $self->{reader}->build($params{input});
     my $writer =
       $self->{writer}
       ->build(exists $params{output} ? $params{output} : \$return);
@@ -53,7 +52,45 @@ sub render {
         }
     );
 
+    $self->_compile(
+        $params{input}, $context, sub {
+            my $self = shift;
+            my ($sub_ref) = @_;
+
+            $sub_ref->($context);
+
+            $writer->();
+        }
+    );
+
+    return exists $params{output} ? $self : $return;
+}
+
+sub _compile {
+    my $self = shift;
+    my ($input, $context, $cb) = @_;
+
+    $self->_parse(
+        $input => sub {
+            my $self = shift;
+            my ($tape) = @_;
+
+            my $code = $self->{translator}->translate($tape);
+
+            my $sub_ref = $self->{compiler}->compile($code, $context);
+
+            $cb->($self, $sub_ref);
+        }
+    );
+}
+
+sub _parse {
+    my $self = shift;
+    my ($input, $cb) = @_;
+
     my $parser = $self->{parser};
+
+    my $reader = $self->{reader}->build($input);
 
     my $tape = [];
     my $reader_cb = sub {
@@ -63,13 +100,7 @@ sub render {
             my $leftover = $parser->parse();
             push @$tape, @$leftover if $leftover;
 
-            my $code = $self->_translate($tape);
-
-            my $sub_ref = $self->_compile($code, $context);
-
-            $sub_ref->($context);
-
-            $writer->();
+            $cb->($self, $tape);
         }
         else {
             my $subtape = $parser->parse($chunk);
@@ -77,21 +108,7 @@ sub render {
         }
     };
 
-    $reader->($reader_cb, $params{input});
-
-    return exists $self->{output} ? $self : $return;
-}
-
-sub _translate {
-    my $self = shift;
-
-    return $self->{translator}->translate(@_);
-}
-
-sub _compile {
-    my $self = shift;
-
-    return $self->{compiler}->compile(@_);
+    $reader->($reader_cb, $input);
 }
 
 sub _build_reader {
