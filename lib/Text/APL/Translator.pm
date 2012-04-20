@@ -26,6 +26,8 @@ sub translate {
             $code .= ';' unless $token->{line};
         }
         else {
+            $token->{value} =~ s/}/\\}/gms;
+            $token->{value} =~ s/{/\\{/gms;
             $code .= '__print(q{' . $token->{value} . '});';
         }
     }
