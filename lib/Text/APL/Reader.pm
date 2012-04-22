@@ -36,6 +36,10 @@ sub _build_file_reader {
 
     open my $fh, '<', $input or die "Can't open '$input': $!";
 
+    if (my $charset = $self->{charset}) {
+        binmode $fh, ":encoding($charset)";
+    }
+
     return $self->_build_file_handle_reader($fh);
 }
 

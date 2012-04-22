@@ -12,7 +12,9 @@ sub new {
     my $class = shift;
     my (%options) = @_;
 
-    $options{reader} ||= $class->_build_reader;
+    $options{charset} ||= 'UTF-8';
+
+    $options{reader} ||= $class->_build_reader(charset => $options{charset});
 
     if (delete $options{cache}) {
         return Text::APL::WithCaching->new(%options);

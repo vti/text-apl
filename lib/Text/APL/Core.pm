@@ -44,6 +44,8 @@ sub render {
         __print_escaped => sub {
             my ($input) = @_;
 
+            return $writer->('') unless defined $input;
+
             for ($input) { s/&/&amp;/g; s/</&lt;/g; s/>/&gt;/g; }
 
             $writer->($input);
