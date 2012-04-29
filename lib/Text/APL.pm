@@ -24,15 +24,17 @@ sub new {
 }
 
 sub _build_reader {
+    my $self = shift;
+
     exists $INC{"AnyEvent.pm"}
       ? do {
         require AnyEvent::AIO;
         require Text::APL::Reader::AIO;
-        Text::APL::Reader::AIO->new;
+        Text::APL::Reader::AIO->new(@_);
       }
       : exists $INC{"IO/AIO.pm"}
-      ? do { require TExt::APL::Reader::AIO; Text::APL::Reader->AIO->new }
-      : Text::APL::Reader->new;
+      ? do { require Text::APL::Reader::AIO; Text::APL::Reader->AIO->new(@_) }
+      : Text::APL::Reader->new(@_);
 }
 
 1;
