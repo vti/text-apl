@@ -1,5 +1,9 @@
 Revision history for perl module Text::APL
 
-0.01 2012-01-28
+0.02 2012-06-02
+
+ - Fixed distribution's manifest
+
+0.01 2012-05-31
 
  - Initial release
