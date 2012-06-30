@@ -1,5 +1,9 @@
 Revision history for perl module Text::APL
 
+0.03 2012-06-30
+
+ - Improved caching
+
 0.02 2012-06-02
 
  - Fixed distribution's manifest

@@ -26,7 +26,7 @@ sub id {
     return Digest::MD5::md5_hex($id);
 }
 
-sub name    { $_[0]->{name} }
+sub name    { $_[0]->{name} || '' }
 sub vars    { $_[0]->{vars} }
 sub helpers { $_[0]->{helpers} }
 

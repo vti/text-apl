@@ -17,18 +17,13 @@ sub compile {
 
     my $template_class = "$self->{namespace}";
 
-    if (defined(my $name = $context->name)) {
-        $template_class .= $name;
-    }
-    else {
-        $template_class .= '__anon__';
-    }
+    $template_class .= ($context->name || '__anon__') . $context->id;
 
     my $package = '';
     $package .= qq/no strict 'refs'; %{"$template_class\::"} = ();/;
-    $package    .= "package $template_class;";
-    $package    .= 'sub {';
-    $package    .= 'use strict; use warnings;';
+    $package .= "package $template_class;";
+    $package .= 'sub {';
+    $package .= 'use strict; use warnings;';
 
     $package .= $self->_generate_vars($context);
 
