@@ -17,7 +17,8 @@ sub compile {
 
     my $template_class = "$self->{namespace}";
 
-    $template_class .= ($context->name || '__anon__') . $context->id;
+    $template_class .= '_' . ($context->name || '__anon__') . $context->id;
+    $template_class =~ s{[^A-Za-z0-9:]}{_}g;
 
     my $package = '';
     $package .= qq/no strict 'refs'; %{"$template_class\::"} = ();/;
