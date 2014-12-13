@@ -25,6 +25,7 @@ sub compile {
     $package .= "package $template_class;";
     $package .= 'sub {';
     $package .= 'use strict; use warnings;';
+    $package .= 'my $__self = $_[0];';
 
     $package .= $self->_generate_vars($context);
 
@@ -41,7 +42,7 @@ sub _generate_vars {
 
     my $string = '';
     foreach my $var (keys %{$context->vars}) {
-        $string .= qq/my \$$var = \$_[0]->vars->{$var};/;
+        $string .= qq/my \$$var = \$__self->vars->{$var};/;
     }
 
     return $string;
@@ -53,8 +54,9 @@ sub _generate_helpers {
 
     my $string = '';
 
+    $string .= "sub var; local *var = sub { exists \$__self->vars->{\$_[0]} };";
     foreach my $key (keys %{$context->helpers}) {
-        $string .= "sub $key; local *$key = \$_[0]->helpers->{$key};";
+        $string .= "sub $key; local *$key = \$__self->helpers->{$key};";
     }
 
     return $string;
