@@ -49,7 +49,7 @@ is render('%= $foo;', vars => {foo => '<xml>'}), '&lt;xml&gt;';
 
 is render('%== $foo;', vars => {foo => '<xml>'}), '<xml>';
 
-is render('%== var("foo");', vars => {foo => 1}), '1';
+is render('%== var("foo");', vars => {foo => 'here'}), 'here';
 is render('%== var("bar");', vars => {}), '';
 
 eval { render('% foo'); };

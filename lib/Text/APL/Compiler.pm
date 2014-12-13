@@ -54,7 +54,7 @@ sub _generate_helpers {
 
     my $string = '';
 
-    $string .= "sub var; local *var = sub { exists \$__self->vars->{\$_[0]} };";
+    $string .= "sub var; local *var = sub { \$__self->vars->{\$_[0]} };";
     foreach my $key (keys %{$context->helpers}) {
         $string .= "sub $key; local *$key = \$__self->helpers->{$key};";
     }
