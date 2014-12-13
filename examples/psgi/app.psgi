@@ -38,9 +38,3 @@ my $app = sub {
         );
     };
 };
-
-builder {
-    enable 'Chunked';
-
-    $app;
-};
