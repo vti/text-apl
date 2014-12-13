@@ -1,5 +1,12 @@
+_build
 Makefile
 blib
 *.swp
 *~
 pm_to_blib
+Build
+Build.PL
+META.json
+MYMETA.json
+MYMETA.yml
+README.md
