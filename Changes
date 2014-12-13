@@ -2,6 +2,10 @@ Revision history for perl module Text::APL
 
 {{$NEXT}}
 
+0.05 2014-12-13T15:11:38Z
+
+ - var should return var
+
 0.04 2014-12-13T15:06:48Z
 
  - var helper
