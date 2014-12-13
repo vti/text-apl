@@ -1,5 +1,7 @@
 Revision history for perl module Text::APL
 
+{{$NEXT}}
+
 0.03 2012-06-30
 
  - Improved caching
