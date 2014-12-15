@@ -2,6 +2,10 @@ Revision history for perl module Text::APL
 
 {{$NEXT}}
 
+0.06 2014-12-15T12:30:18Z
+
+ - include Build.PL
+
 0.05 2014-12-13T15:11:38Z
 
  - var should return var
