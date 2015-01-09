@@ -52,6 +52,8 @@ is render('%== $foo;', vars => {foo => '<xml>'}), '<xml>';
 is render('%== var("foo");', vars => {foo => 'here'}), 'here';
 is render('%== var("bar");', vars => {}), '';
 
+is render(qq{% my \$foo = <<"EOF";\n% hello\n% EOF}, vars => {}), '';
+
 eval { render('% foo'); };
 ok $@;
 
