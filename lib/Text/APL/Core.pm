@@ -46,7 +46,7 @@ sub render {
 
             return $writer->('') unless defined $input;
 
-            for ($input) { s/&/&amp;/g; s/</&lt;/g; s/>/&gt;/g; }
+            for ($input) { s/&/&amp;/g; s/</&lt;/g; s/>/&gt;/g; s/"/&quot;/g; s/'/&#039;/g }
 
             $writer->($input);
         }

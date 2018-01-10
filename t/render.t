@@ -54,6 +54,8 @@ is render('%== var("bar");', vars => {}), '';
 
 is render(qq{% my \$foo = <<"EOF";\n% hello\n% EOF}, vars => {}), '';
 
+is render(qq{%= \$foo}, vars => {foo => q{"'<>&}}), '&quot;&#039;&lt;&gt;&amp;';
+
 eval { render('% foo'); };
 ok $@;
 
